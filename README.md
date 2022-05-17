@@ -21,6 +21,6 @@ Once the user configures the script with the needed api information and weburl i
 3. Click the new reward's purchase button, and it will change the Saved amount by an addition of that amount.
 4. When you reach your goal, the goal will change the description to add a picture and celebratory phrase (variable)
 5. Click the reward's purchase button again to have it removed.
-6. Start over, but clicking the Piggy Bank Creation reward.
+6. Start over, by clicking the Piggy Bank Creation reward.
 
 Currently, this is a work in progress and does not yet work. It is not yet ready for testing.
