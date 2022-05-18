@@ -12,19 +12,9 @@ const WEB_APP_URL = "PasteGeneratedWebAppUrlHere";
 /* [Users] Required customizations to fill in */
 /* ========================================== */
 
-// How many customizable buttons do you want? Enter any number between 1 and 5.
-const NUMBER_OF_BUTTONS = 2;
-
 /* ========================================== */
 /* [Users] Optional customizations to fill in */
 /* ========================================== */
-
-// What do you want to call each button? Cutomize the titles here, or leave them as is (Piggy Bank)
-const PIGGY_BANK_1_TEXT = "Piggy Bank 1";
-const PIGGY_BANK_2_TEXT = "Piggy Bank 2";
-const PIGGY_BANK_3_TEXT = "Piggy Bank 3";
-const PIGGY_BANK_4_TEXT = "Piggy Bank 4";
-const PIGGY_BANK_5_TEXT = "Piggy Bank 5";
 
 /* ========================================== */
 /* [Users] Do not edit code below this line   */
@@ -39,119 +29,36 @@ const HEADERS = {
 
 const scriptProperties = PropertiesService.getScriptProperties(); // Constants can have properties changed
 
-const PIGGY_BANK_1_ALIAS = "custom1";
-const PIGGY_BANK_1_NOTES = "Total: 10000; Current: 0;";
-const PIGGY_BANK_1_VALUE = "0";
+const NEW_NOTES_START = "Goal amount: ";
+const NEW_NOTES_MIDDLE = "; Amount saved towards goal: ";
+const NEW_NOTES_END = ";";
 
-const PIGGY_BANK_1_BUTTON = {
-    "text": PIGGY_BANK_1_TEXT,
-    "type": "reward",
-    "alias": PIGGY_BANK_1_ALIAS,
-    "notes": PIGGY_BANK_1_NOTES,
-    "value": PIGGY_BANK_1_VALUE,
-}
+const PIGGY_BANK_CREATE_TEXT = "Create a new Piggy Bank button with the parameters below";
+const PIGGY_BANK_CREATE_ALIAS = "piggyBankCreate";
+const PIGGY_BANK_CREATE_NOTES = "+ Piggy Bank Title: title ;\n+ Goal amount: 10000 ;\n+ Reward amount to purchase incrementally: 100;"; // doing it this way creates the three items as a bulleted list (that's what the plus sign is for) and line break is created by the character '\n'
+const PIGGY_BANK_CREATE_VALUE = "0";
 
-const PIGGY_BANK_2_ALIAS = "custom2";
-const PIGGY_BANK_2_NOTES = "Total: 10000; Current: 0;";
-const PIGGY_BANK_2_VALUE = "0";
+const SEARCH_TERM_GOAL = "Goal amount:"; // Offset will be 12 when using this one
+const SEARCH_TERM_AMOUNT_SAVED = "Amount saved towards goal:"; // Offset will be 26 
+const SEARCH_TERM_TITLE = "Piggy Bank Title:"; // Offset will be 17
+const SEARCH_TERM_INCREMENT = "Reward amount to purchase incrementally:"; // Offset will be 40
+const SEARCH_TERM_SHOULD_DELETE_BUTTON = ""; // FILL IN LATER
 
-const PIGGY_BANK_2_BUTTON = {
-    "text": PIGGY_BANK_2_TEXT,
-    "type": "reward",
-    "alias": PIGGY_BANK_2_ALIAS,
-    "notes": PIGGY_BANK_2_NOTES,
-    "value": PIGGY_BANK_2_VALUE,
-}
+// any new Piggy Bank buttons will have an alias that starts with the same base but adds a number at the end
+const PIGGY_BANK_ALIAS_BASE = "piggyBank";
 
-const PIGGY_BANK_3_ALIAS = "custom3";
-const PIGGY_BANK_3_NOTES = "Total: 10000; Current: 0;";
-const PIGGY_BANK_3_VALUE = "0";
+const INTEGER_COUNTER_KEY = "INTEGER_COUNTER_KEY";
+var integerCounterKey = "";
 
-const PIGGY_BANK_3_BUTTON = {
-    "text": PIGGY_BANK_3_TEXT,
-    "type": "reward",
-    "alias": PIGGY_BANK_3_ALIAS,
-    "notes": PIGGY_BANK_3_NOTES,
-    "value": PIGGY_BANK_3_VALUE,
-}
-
-const PIGGY_BANK_4_ALIAS = "custom4";
-const PIGGY_BANK_4_NOTES = "Total: 10000; Current: 0;";
-const PIGGY_BANK_4_VALUE = "0";
-
-const PIGGY_BANK_4_BUTTON = {
-    "text": PIGGY_BANK_4_TEXT,
-    "type": "reward",
-    "alias": PIGGY_BANK_4_ALIAS,
-    "notes": PIGGY_BANK_4_NOTES,
-    "value": PIGGY_BANK_4_VALUE,
-}
-
-const PIGGY_BANK_5_ALIAS = "custom5";
-const PIGGY_BANK_5_NOTES = "Total: 10000; Current: 0;";
-const PIGGY_BANK_5_VALUE = "0";
-
-const PIGGY_BANK_5_BUTTON = {
-    "text": PIGGY_BANK_5_TEXT,
-    "type": "reward",
-    "alias": PIGGY_BANK_5_ALIAS,
-    "notes": PIGGY_BANK_5_NOTES,
-    "value": PIGGY_BANK_5_VALUE,
-}
-
-// error messages: semicolon
-const SEMICOLON_ERROR_MSG_START = "Error: there should be a semicolon following '";
-const SEMICOLON_ERROR_MSG_END = "'. For help formatting the notes section of the button, see the [wiki page](https://habitica.fandom.com/wiki/Piggy_Bank).";
-
-// error message: number after + or -
-const NUMBER_AFTER_DIRECTION_ERROR_MSG = "Error: there should be a number after the direction sign (+ or -) and before the semicolon. For help formatting the notes section of the button, see the [wiki page](https://habitica.fandom.com/wiki/Piggy_Bank).";
-
-// error messages: missing a + or -
-const MISSING_DIRECTION_ERROR_MSG_START = "Error: there should be a '+' or a '-' after '"; 
-const MISSING_DIRECTION_ERROR_MSG_END = "'. For help formatting the notes section of the button, see the [wiki page](https://habitica.fandom.com/wiki/Piggy_Bank).";
-
-// insufficient cost messages
-
-const INSUFFICIENT_COST_MSG_START = "You don't have enough ";
-const INSUFFICIENT_COST_MSG_END = " to pay for this skill.";
-
-// const INSUFFICIENT_COST_MSG_VARIABLE_4 = "HP or XP or MP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_3H = "XP or MP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_3X = "HP or MP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_3M = "HP or XP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_3G = "HP or XP or MP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_2HX = "HP or XP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_2HM = "HP or MP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_2HG = "HP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_2XM = "XP or MP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_2XG = "XP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_2MG = "MP or GP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_1H = "HP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_1X = "XP";
-// const INSUFFICIENT_COST_MSG_VARIABLE_1M = "MP";
-const INSUFFICIENT_COST_MSG_VARIABLE_1G = "GP";
-
-const TIMESTAMP_KEY = "TIMESTAMP_KEY";
-var timestampKey = "";
+// Error messages
+const ERROR_MSG_FUNCTION_CHECK_STRING_FORMATTING = "Error with function `checkStringFormatting`, please contact author of the script to troubleshoot.";
+const ERROR_MSG_FUNCTION_CHECK_SEARCH_TERMS = "Error with function `checkSearchTerms`, please contact author of the script to troubleshoot.";
+const ERROR_MSG_FUNCTION_CHECK_SEMICOLONS = "Error with function `checkSemicolons`, please contact author of the script to troubleshoot.";
+const ERROR_MSG_FUNCTION_CHECK_ORDER = "Error with function `checkOrder`, please contact author of the script to troubleshoot.";
 
 function doOneTimeSetup() { 
-  // Create 1-5 buttons
-  var numberOfButtons = sanitizeInput (NUMBER_OF_BUTTONS, 1, 5);
-  if ( numberOfButtons == 5 ) {
-    api_createNewTaskForUser([PIGGY_BANK_5_BUTTON, PIGGY_BANK_4_BUTTON, PIGGY_BANK_3_BUTTON, PIGGY_BANK_2_BUTTON, PIGGY_BANK_1_BUTTON]);
-  }
-  else if ( numberOfButtons == 4 ) {
-    api_createNewTaskForUser([PIGGY_BANK_4_BUTTON, PIGGY_BANK_3_BUTTON, PIGGY_BANK_2_BUTTON, PIGGY_BANK_1_BUTTON]);
-  }
-  else if ( numberOfButtons == 3 ) {
-    api_createNewTaskForUser([PIGGY_BANK_3_BUTTON, PIGGY_BANK_2_BUTTON, PIGGY_BANK_1_BUTTON]);
-  }
-  else if ( numberOfButtons == 2 ) {
-    api_createNewTaskForUser([PIGGY_BANK_2_BUTTON, PIGGY_BANK_1_BUTTON]);
-  }
-  else if ( numberOfButtons == 1 ) {
-    api_createNewTaskForUser([PIGGY_BANK_1_BUTTON]);
-  }
+  // create button
+  api_createNewTaskForUser([PIGGY_BANK_CREATE_BUTTON]);
   
   // create the webhook
   const options = {
@@ -181,81 +88,145 @@ function doPost(e) {
       task.alias = "";
     }
     
-    if ( (task.alias == PIGGY_BANK_1_ALIAS) || (task.alias == PIGGY_BANK_2_ALIAS) || (task.alias == PIGGY_BANK_3_ALIAS)
-    || (task.alias == PIGGY_BANK_4_ALIAS) || (task.alias == PIGGY_BANK_5_ALIAS) ) {
+    // All of the Piggy Bank buttons will have an alias that begins with "piggyBank" (which is saved as PIGGY_BANK_ALIAS_BASE)
+    // Check if the alias of the button that was clicked includes PIGGY_BANK_ALIAS_BASE or not
+    let aliasString = task.alias;
+    let includesBaseAlias = aliasStringincludes(PIGGY_BANK_ALIAS_BASE);
+    
+    // Only run rest of script if true
+    if (includesBaseAlias) {
+      let notes = "initial value";
+      notes = task.notes;
       
-      var timestampKey = TIMESTAMP_KEY;
-      var timeStart = Number(scriptProperties.getProperty(timestampKey));
-      if ( (timeStart == 0) || (timeStart == "") || (timeStart == undefined) || (timeStart == null) ) {
-        timeStart = Date.now();
-      }
-      var timeEnd = Date.now();
+      // Find index locations for each search term
+      let indexGoal = findIndex(SEARCH_TERM_GOAL, notes);
+      let indexAmountSaved = findIndex(SEARCH_TERM_AMOUNT_SAVED, notes);
+      let indexTitle = findIndex(SEARCH_TERM_TITLE, notes);
+      let indexIncrement = findIndex(SEARCH_TERM_INCREMENT, notes);
+      let indexShouldDelete = findIndex(SEARCH_TERM_SHOULD_DELETE_BUTTON, notes);
       
-      // Rate limiting: If it's been less than 30 seconds since they last clicked one of these buttons, do nothing
-      if ( (timeEnd - timeStart) >= 30000 ) {
+      // Find semicolons after each search term
+      //findIndexSemicolon(stringToSearch, startingAt, offset)
+      
+      // If user clicked the Create button, take the relevant actions
+      if (task.alias == PIGGY_BANK_CREATE_ALIAS) {
+        // Check if string is formatted correctly, sends error messages if not.
+        let correctFormatCreate = checkStringFormtting(notes, "create", indexGoal, indexAmountSaved, indexTitle, indexIncrement);
         
-        const responseUser = api_getAuthenticatedUserProfile("stats,items.gear.equipped");
-        user = JSON.parse(responseUser).data;
-        
-        var hp = user.stats.hp;
-        var xp = user.stats.exp;
-        var mp = user.stats.mp;
-        var gp = user.stats.gp;
-        
-        var notes = "initial value";
-        
-        // Get all tasks in order to grab notes section of the rewards buttons
-        const responseTasks = api_getUserTasks("rewards");
-        const tasksRewards = JSON.parse(responseTasks).data;
-        
-        // Set 'notes' string equal to the appropriate string based on which button was pressed
-        if (task.alias == PIGGY_BANK_1_ALIAS) {
-          for (var i in tasksRewards) {
-            if (tasksRewards[i].alias == PIGGY_BANK_1_ALIAS ) {
-              notes = tasksRewards[i].notes;
+        if (correctFormatCreate) {
+          // Find semicolons after each relevant search term
+          let indexTitleSemicolon = findIndexSemicolon(notes, indexTitle, 17);
+          let indexGoalSemicolonCreate = findIndexSemicolon(notes, indexGoal, 12);
+          let indexIncrementSemicolon = findIndexSemicolon(notes, indexIncrement, 40);
+          
+          // Split into substrings
+          let title = createSubstring(notes, indexTitle, indexTitleSemicolon);
+          let goalTemp = createSubstring(notes, indexGoal, indexGoalSemicolonCreate);
+          let incrementTemp = createSubstring(notes, indexIncrement, indexIncrementSemicolon);
+          
+          // Check if numeric ones are numbers
+          let goalIsNumber = checkIfNumber(goalTemp);
+          let incrementIsNumber = checkIfNumber(incrementTemp);
+          
+          if (goalIsNumber && incrementIsNumber) {
+            // Save numeric values as numbers
+            let goal = parseFloat(goalTemp);
+            let increment = parseFloat(incrementTemp);
+            
+            // Create notes section for button
+            let newNotes = NEW_NOTES_START + goal + NEW_NOTES_MIDDLE + "0" + NEW_NOTES_END;
+            
+            // Task alias needs an integer appended to it; Habitica doesn't allow two tasks with the same alias.
+            // Retrieve saved integer.
+            var integerCounterKey = INTEGER_COUNTER_KEY;
+            var integerCounterPrev = Number(scriptProperties.getProperty(integerCounterKey));
+            
+            // Increment by 1. Save new value.
+            var integerCounterNew = integerCounterPrev++;
+            scriptProperties.setProperty(integerCounterKey, integerCounterNew);
+            
+            // Convert new value to string
+            let integerCounterAsString = integerCounterNew.toString();
+            
+            // Append to end of base alias
+            let newAlias = PIGGY_BANK_ALIAS_BASE + integerCounterAsString;
+            
+            // Build button
+            const PIGGY_BANK_NEW_BUTTON = {
+              "text": title,
+              "type": "reward",
+              "alias": newAlias,
+              "notes": newNotes,
+              "value": increment, // GP value for the reward will be whatever they set it, which is nice
             }
+            
+            // Create button
+            api_createNewTaskForUser([PIGGY_BANK_NEW_BUTTON]);
+          } else {
+            // ERROR MESSAGE, YOU DIDN'T ENTER A NUMBER
           }
-        }
-        else if (task.alias == PIGGY_BANK_2_ALIAS) {
-          for (var i in tasksRewards) {
-            if (tasksRewards[i].alias == PIGGY_BANK_2_ALIAS ) {
-              notes = tasksRewards[i].notes;
-            }
-          }
-        }
-        else if (task.alias == PIGGY_BANK_3_ALIAS) {
-          for (var i in tasksRewards) {
-            if (tasksRewards[i].alias == PIGGY_BANK_3_ALIAS ) {
-              notes = tasksRewards[i].notes;
-            }
-          }
-        }
-        else if (task.alias == PIGGY_BANK_4_ALIAS) {
-          for (var i in tasksRewards) {
-            if (tasksRewards[i].alias == PIGGY_BANK_4_ALIAS ) {
-              notes = tasksRewards[i].notes;
-            }
-          }
-        }
-        else if (task.alias == PIGGY_BANK_5_ALIAS) {
-          for (var i in tasksRewards) {
-            if (tasksRewards[i].alias == PIGGY_BANK_5_ALIAS ) {
-              notes = tasksRewards[i].notes;
-            }
-          }
-        }
-        
-        // "notes" is now correct based on button, so this function can be outside of the if-statements
-        multParseAndEvaluate(hp, xp, mp, gp, notes);
-        
-        // Save values to non-volatile memory, but only from within the rate-limited if-block (we don't want to save the timestamp unless the script ran)
-        timeStart = timeEnd;
-        scriptProperties.setProperty(timestampKey, timeStart);
+        } 
       }
+      // If user clicked one of their own Piggy Bank buttons, take the relevant actions
+      else {
+        // Habitica has already checked if they have enough GP, so no need to do it here
+        
+        // Grab GP value of button
+        let gpValue = task.value;
+        
+        // Check if button should be deleted 
+        // NOTES OF BUTTON SHOULD SOMEHOW INDICATE THIS, THEN FLIP BOOLEAN
+        let shouldDeleteButton = false;
+        // if (conditions) { shouldDeleteButton = true; }
+        
+        if (shouldDeleteButton) {
+          // DELETE THE TASK AND REFUND THEIR GP
+        } else {
+          // Check if string is formatted correctly, sends error messages if not.
+          let correctFormatDeposit = checkStringFormtting(notes, "deposit", indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+        
+          if (correctFormatDeposit) {
+            // Find semicolons after each relevant search term
+            let indexGoalSemicolonDeposit = findIndexSemicolon(string, indexGoal, 12);
+            let indexAmountSavedSemicolon = findIndexSemicolon(string, indexAmountSaved, 26);
+            
+            // Split into substrings
+            let goalDepositTemp = createSubstring(notes, indexGoal, indexGoalSemicolonDeposit);
+            let amountSavedTemp = createSubstring(notes, indexAmountSaved, indexAmountSavedSemicolon);
+            
+            // Check if they are numbers
+            let goalDepositIsNumber = checkIfNumber(goalDepositTemp);
+            let amountSavedIsNumber = checkIfNumber(amountSavedTemp);
+          
+            if (goalDepositIsNumber && amountSavedIsNumber) {
+              // Save as numbers
+              let goalDeposit = parseFloat(goalDepositTemp);
+              let amountSaved = parseFloat(amountSavedTemp);
+              
+              // Add GP value to amount saved
+              let newAmountSaved = amountSaved + gpValue;
+              
+              // Check if new amount saved exceeds goal
+              if (newAmountSaved >= goalAmount) {
+                // DO VICTORY THINGS
+                // UPDATE BUTTON, INCLUDING A WAY TO CHECK IF BUTTON SHOULD BE DELETED
+              } else {
+                // Create updated notes section for button
+                let updatedNotes = NEW_NOTES_START + goalDeposit + NEW_NOTES_MIDDLE + newAmountSaved + NEW_NOTES_END;
+                
+                // UPDATE BUTTON
+              }
+              
+            } else {
+              // ERROR MESSAGE - YOU DIDN'T ENTER A NUMBER
+            }
+            
+          }
+        } 
+      }
+      return HtmlService.createHtmlOutput();
     }
   }
-  
-  return HtmlService.createHtmlOutput();
 }
 
 // Create custom reward buttons
@@ -270,21 +241,6 @@ function api_createNewTaskForUser(payload) {
 
   var url = "https://habitica.com/api/v3/tasks/user";
   UrlFetchApp.fetch(url, params);
-}
-
-function sanitizeInput (input, minimum, maximum) {
-  if ( input < minimum ) {
-    return minimum;
-  }
-  else if ( input > maximum ) {
-    return maximum;
-  }
-  else { return input; }
-}
-
-function sanitizePositive (input) {
-  if ( input < 0 ) { return 0; }
-  else { return input; }
 }
 
 // Create a webhook if no duplicate exists
@@ -330,6 +286,163 @@ function api_createNewWebhook(payload) {
   return UrlFetchApp.fetch(url, params);
 }
 
+// Sets initial properties that will be used/saved later.
+function initScriptProperties() {
+  scriptProperties.setProperty(INTEGER_COUNTER_KEY, 0);
+}
+
+function findIndex(searchTerm, stringToSearch) {
+  return stringToSearch.indexOf(searchTerm);
+}
+
+// Finds the semicolon after the search term previously searched. Builds in an offset to account for the number of characters in the search term.
+function findIndexSemicolon(stringToSearch, startingAt, offset) {
+  return stringToSearch.indexOf(";", startingAt + offset);
+}
+
+// Confirms string has correct format and number of semicolons. If not, other functions send the error messages.
+function checkStringFormtting(string, version, indexGoal, indexAmountSaved, indexTitle, indexIncrement) {
+  // Check if all relevant search terms are present
+  let allPresent = checkSearchTerms(version, indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+  
+  if (allPresent) {
+    // Check if all terms and semicolons are present and in the correct order
+    let correctSemicolons = checkSemicolons(string, version, indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+    
+    if (correctSemicolons) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+// Checks if all of the relevant search terms are present. Sends error message if not.
+function checkSearchTerms(version, indexGoal, indexAmountSaved, indexTitle, indexIncrement) {
+  if (version == "create") {
+    if ( (indexTitle != -1) &&  (indexGoal != -1) && (indexIncrement != -1) ) {
+      return true;
+    } else {
+      // CREATE ERROR MESSAGE ABOUT HOW NOT ALL SEARCH TERMS ARE PRESENT.
+      // GIVE AN EXAMPLE OF WHAT'S EXPECTED (TITLE, ETC.)
+      return false;
+    }
+  } else if (version == "deposit") {
+    if ( (indexGoal != -1) && (indexAmountSaved != -1) ) {
+      return true;
+    } else {
+      // CREATE ERROR MESSAGE ABOUT HOW NOT ALL SEARCH TERMS ARE PRESENT.
+      // GIVE AN EXAMPLE OF WHAT'S EXPECTED (GOAL AND AMOUNT SAVED)
+      return false;
+    }
+  } else { // This condition shouldn't be possible
+    api_sendPrivateMessageAlways({"message" : ERROR_MSG_FUNCTION_CHECK_SEARCH_TERMS, "toUserId" : USER_ID});
+  }
+}
+
+// Checks if enough semicolons are present and if they're in the correct locations. Sends error message if not.
+function checkSemicolons(string, version, indexGoal, indexAmountSaved, indexTitle, indexIncrement) {
+  if (version == "create") {
+    // Find semicolons after each relevant search term
+    let indexTitleSemicolon = findIndexSemicolon(string, indexTitle, 17);
+    let indexGoalSemicolonCreate = findIndexSemicolon(string, indexGoal, 12);
+    let indexIncrementSemicolon = findIndexSemicolon(string, indexIncrement, 40);
+    
+    // Are all expected semicolons present?
+    if ( (indexTitleSemicolon != -1) &&  (indexGoalSemicolonCreate != -1) && (indexIncrementSemicolon != -1) ) {
+      // Now check for correct order
+      let correctOrderCreate = checkOrder(6, indexTitle, indexTitleSemicolon, indexGoal, indexGoalSemicolonCreate, indexIncrement, indexIncrementSemicolon);
+      if (correctOrderCreate) {
+        return true;
+      } else {
+        // SEND ERROR MESSAGE - THINGS AREN'T IN THE RIGHT ORDER. GIVE AN EXAMPLE OF WHAT'S EXPECTED.
+        return false;
+      }
+    } else {
+      // SEND ERROR MESSAGE - NOT ENOUGH SEMICOLONS. GIVE AN EXAMPLE OF WHAT'S EXPECTED.
+      return false;
+    }
+    
+  } else if (version == "deposit") {
+    // Find semicolons after each relevant search term
+    let indexGoalSemicolonDeposit = findIndexSemicolon(string, indexGoal, 12);
+    let indexAmountSavedSemicolon = findIndexSemicolon(string, indexAmountSaved, 26);
+    
+    // Are all expected semicolons present?
+    if ( (indexGoalSemicolonDeposit != -1) && (indexAmountSavedSemicolon != -1) ) {
+      // Now check for correct order
+      let correctOrderDeposit = checkOrder(4, indexGoal, indexGoalSemicolonDeposit, indexAmountSaved, indexAmountSavedSemicolon, 5000, 5001);
+      if (correctOrderDeposit) {
+        return true;
+      } else {
+        // SEND ERROR MESSAGE - THINGS AREN'T IN THE RIGHT ORDER. GIVE AN EXAMPLE OF WHAT'S EXPECTED.
+        return false;
+      }
+    } else {
+      // SEND ERROR MESSAGE - NOT ENOUGH SEMICOLONS
+      return false;
+    }
+  } else { // This condition shouldn't be possible
+    api_sendPrivateMessageAlways({"message" : ERROR_MSG_FUNCTION_CHECK_SEMICOLONS, "toUserId" : USER_ID});
+  }
+}
+
+// Checks if search terms and semicolons are in the correct order. First item should be first (i.e. smallest index), followed by second item, etc.
+function checkOrder(numberTerms, first, second, third, fourth, fifth, sixth) {
+  if (numberTerms >= 4) {
+    if ( (first < second) && (second < third) && (third < fourth) ) {
+      if (numberTerms == 4) {
+        return true;
+      } else if (numberTerms == 6) {
+        if ( (fourth < fifth) && (fifth < sixth) ) {
+          return true;
+        } else {
+          return false;
+        }
+      } else { // This condition shouldn't be possible
+        api_sendPrivateMessageAlways({"message" : ERROR_MSG_FUNCTION_CHECK_ORDER, "toUserId" : USER_ID});
+      }
+    } else {
+      return false;
+    }
+  } else { // This condition shouldn't be possible
+    api_sendPrivateMessageAlways({"message" : ERROR_MSG_FUNCTION_CHECK_ORDER, "toUserId" : USER_ID});
+  } 
+}
+
+// Creates a substring of the characters between the search term and the semicolon, and trims whitespace
+function createSubstring(string, startingIndex, endingIndex) {
+  var untrimmed = string.substring(startingIndex,endingIndex);
+  var trimmed = untrimmed.trim();
+  return trimmed;
+}
+
+// Checks if the substring is a number
+function checkIfNumber(substringToCheck) {
+  let substringAsNumber = parseFloat(substringToCheck);
+  let isNan =  Number.isNaN(substringAsNumber);
+  if (isNan) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+// Send a notification as a private message regardless of if they're enabled
+function api_sendPrivateMessageAlways(payload) {
+  const params = {
+    "method" : "post",
+    "headers" : HEADERS,
+    "contentType" : "application/json",
+    "payload" : JSON.stringify(payload),
+    "muteHttpExceptions" : true,
+  }
+  const url = "https://habitica.com/api/v3/members/send-private-message";
+  return UrlFetchApp.fetch(url, params);
+}
+
 // Gets user info so I can use it, especially stats like mana, experience, and level
 function api_getAuthenticatedUserProfile(userFields) {
   const params = {
@@ -346,12 +459,6 @@ function api_getAuthenticatedUserProfile(userFields) {
   return UrlFetchApp.fetch(url, params);
 }
 
-// Sets initial properties that will be used/saved later.
-function initScriptProperties() {
-  var timestampInit = Date.now();
-  scriptProperties.setProperty(TIMESTAMP_KEY, timestampInit);
-}
-
 function api_getUserTasks(type) {
   const params = {
     "method" : "get",
@@ -365,292 +472,6 @@ function api_getUserTasks(type) {
   }
 
   return UrlFetchApp.fetch(url, params);
-}
-
-// does parseAndEvaluate function for all four stat values
-function multParseAndEvaluate(hp, xp, mp, gp, inputString) {
-  
-  // initialize these at their existing values
- // var newHp = hp;
- // var newXp = xp;
- // var newMp = mp;
-  var newGp = gp;
-  
-  // Compute total Intelligence
-  const responseContent = apiFree_getAllAvailableContentObjects();
-  content = JSON.parse(responseContent).data;
-  
-  //var int = calcTotalIntelligence();
-  //var maxMp = (2 * int) + 30;
-  
-  //newHp = sanitizeInput(parseAndEvaluate(inputString, "HP:", hp), 0, 50);
-  //newXp = sanitizePositive(parseAndEvaluate(inputString, "XP:", xp));
-  //newMp = sanitizeInput(parseAndEvaluate(inputString, "MP:", mp), 0, maxMp);
-  newGp = sanitizePositive(parseAndEvaluate(inputString, "GP:", gp));
-        
-  api_sendPrivateMessageAlways({"message" : "New HP is " + newHp + ", " +
-                                "New XP is " + newXp + ", " +
-                                "New MP is " + newMp + ", " +
-                                "New GP is " + newGp
-                                , "toUserId" : USER_ID});
-  
-  // check if an error happened; 0.184937265 is the value I randomly generated that I'm using to check errors, it's unlikely a user will input it.
-  if ( ( newHp == 0.184937265 ) || ( newXp == 0.184937265 ) || ( newMp == 0.184937265 ) || ( newGp == 0.184937265 ) ) {
-    // do nothing, the error message was already sent
-  }  
-  
-  // check if there was insufficient stat(s) to pay the cost; 0.562739481 is the value I'm using to check it, it's unlikely a user will input it.
-  else if ( ( newHp == 0.562739481 ) || ( newXp == 0.562739481 ) || ( newMp == 0.562739481 ) || ( newGp == 0.562739481 ) ) {
-    
-    // send error message based on which value is insufficient, starting with "missing all 4"
-    if ( ( newHp == 0.562739481 ) && ( newXp == 0.562739481 ) && ( newMp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_4 + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    // now try scenarios where 3 stats are missing
-    else if ( ( newXp == 0.562739481 ) && ( newMp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_3H + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newHp == 0.562739481 ) && ( newMp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_3X + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newHp == 0.562739481 ) && ( newXp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_3M + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newHp == 0.562739481 ) && ( newXp == 0.562739481 ) && ( newMp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_3G + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    // now try scenarios where 2 stats are missing
-    else if ( ( newHp == 0.562739481 ) && ( newXp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_2HX + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newHp == 0.562739481 ) && ( newMp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_2HM + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newHp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_2HG + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newXp == 0.562739481 ) && ( newMp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_2XM + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newXp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_2XG + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newMp == 0.562739481 ) && ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_2MG + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    // finally try scenarios missing only 1 stat
-    else if ( ( newHp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_1H + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newXp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_1X + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newMp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_1M + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-    else if ( ( newGp == 0.562739481 ) ) {
-      api_sendPrivateMessageAlways({"message" : INSUFFICIENT_COST_MSG_START + INSUFFICIENT_COST_MSG_VARIABLE_1G + INSUFFICIENT_COST_MSG_END, "toUserId" : USER_ID});
-    }
-  }
-  else {
-    // update all four stats with a single POST call
-    api_updateUser({"stats.hp" : newHp, "stats.exp" : newXp, "stats.mp" : newMp, "stats.gp" : newGp});
-  }
-}
-
-// checks input string for the search term and returns the new stat value
-function parseAndEvaluate(inputString, searchTerm, statValue){
-  // Find if the search term exists in the string, and if yes, where it starts
-  var index = findIndex(searchTerm, inputString);
-  
-  // If search term isn't found, stat value stays the same
-  if ( index == -1 ) {
-    return statValue;
-  }
-  else {
-    // Find where the semicolon is in the string (following the search term)
-    var indexSemicolon = findIndexOfSemicolon(inputString, index);
-    if ( indexSemicolon == -1 ) {
-      api_sendPrivateMessageAlways({"message" : SEMICOLON_ERROR_MSG_START + searchTerm + SEMICOLON_ERROR_MSG_END, "toUserId" : USER_ID});
-      return 0.184937265; // this signals to the script that there was an error
-    }
-    // if the two indices are too far apart, the semicolon is likely following the next search term, not the correct one.
-    else if ( ( indexSemicolon - index ) >= 15 ) {
-      api_sendPrivateMessageAlways({"message" : SEMICOLON_ERROR_MSG_START + searchTerm + SEMICOLON_ERROR_MSG_END, "toUserId" : USER_ID});
-      return 0.184937265; // this signals to the script that there was an error
-    }
-    else {
-      // Create a substring of the characters between the search term and the semicolon, and trim whitespace
-      var substring = createSubstring(inputString, index + 3, indexSemicolon);
-            
-      // Grab direction (up or down) and whether the number is a percent
-      var direction = findDirection(substring, searchTerm);
-      var isPercent = findPercent(substring);
-      
-      if ( direction == "error" ) {
-        return 0.184937265; // this signals to the script that there was an error
-      }
-        
-      // grab the smaller substring of just the numbers, which depends on if there's a percent sign at the end
-      var smallerSubstring = "";
-      var substringLength = substring.length;
-          
-      if (isPercent) {
-        smallerSubstring = createSubstring(substring, 1, substringLength - 1);
-      }
-      else {
-        smallerSubstring = createSubstring(substring, 1, substringLength);
-      }
-            
-      // turn it into a number
-      var smallerSubstringAsNumber = parseFloat(smallerSubstring);
-          
-      // If it's not a number, return an error
-      var isNan = Number.isNaN(smallerSubstringAsNumber);
-      if (isNan) {
-        api_sendPrivateMessageAlways({"message" : NUMBER_AFTER_DIRECTION_ERROR_MSG, "toUserId" : USER_ID});
-        return 0.184937265; // this signals to the script that there was an error
-      }
-      // If it is a number, proceed as normal
-      else {
-        if (isPercent) {
-          // turn the raw number into a percent
-          var percentFromNotes = (smallerSubstringAsNumber / 100); 
-          
-          if ( direction == "up") {
-            // multiply the percent times the stat value it's going to be the percent of
-            var percentOfStatValue = statValue * percentFromNotes;
-            
-            return ( statValue + percentOfStatValue );
-          }
-          else if (direction == "down") {
-            // we must sanitize entries that are beyond 0-100 since we don't want to subtract greater than 100% of a value; this didn't need to happen for positive, just for negative
-            var sanitizedPercent = sanitizeInput(percentFromNotes, 0, 100);
-            
-            // multiply the sanitized percent times the stat value it's going to be the percent of
-            var sanitizedPercentOfStatValue = statValue * sanitizedPercent;
-            
-            return ( statValue - sanitizedPercentOfStatValue);
-          }
-          else { // it shouldn't be possible for this "else" condition to happen, but just in case...
-            api_sendPrivateMessageAlways({"message" : MISSING_DIRECTION_ERROR_MSG_START + searchTerm + MISSING_DIRECTION_ERROR_MSG_END, "toUserId" : USER_ID});
-            return 0.184937265; // this signals to the script that there was an error
-          }
-        }
-        else {
-          if ( direction == "up") {
-            return ( statValue + smallerSubstringAsNumber );
-          }
-          else if (direction == "down") {
-            // check if stat value is sufficient to pay the cost
-            if ( ( statValue - smallerSubstringAsNumber ) < 0 ) {
-              return 0.562739481; // this is the error-checking amount for insufficient stat to pay the cost
-            }
-            else {
-              return ( statValue - smallerSubstringAsNumber );
-            }
-          }
-          else { // it shouldn't be possible for this "else" condition to happen, but just in case...
-            api_sendPrivateMessageAlways({"message" : MISSING_DIRECTION_ERROR_MSG_START + searchTerm + MISSING_DIRECTION_ERROR_MSG_END, "toUserId" : USER_ID});
-            return 0.184937265; // this signals to the script that there was an error
-          }
-        }
-      }
-    }
-  }
-}
-
-function findIndex(searchTerm, stringToSearch) {
-  return stringToSearch.indexOf(searchTerm);
-}
-
-// Send a notification as a private message regardless of if they're enabled
-function api_sendPrivateMessageAlways(payload) {
-  const params = {
-    "method" : "post",
-    "headers" : HEADERS,
-    "contentType" : "application/json",
-    "payload" : JSON.stringify(payload),
-    "muteHttpExceptions" : true,
-  }
-  const url = "https://habitica.com/api/v3/members/send-private-message";
-  return UrlFetchApp.fetch(url, params);
-}
-
-// Specifically, this finds the semicolon after the search term previously searched
-// Already builds in +3 to the previous index to account for the number of characters in the search term.
-function findIndexOfSemicolon(stringToSearch, startingAt) {
-  return stringToSearch.indexOf(";", startingAt + 3);
-}
-
-function createSubstring(string, startingIndex, endingIndex) {
-  var untrimmed = string.substring(startingIndex,endingIndex);
-  var trimmed = untrimmed.trim();
-  return trimmed;
-}
-
-function findDirection(trimmedSubstring, searchTerm) {
-  if ( trimmedSubstring.charAt(0) == "+") {
-    return "up";
-  }
-  else if ( trimmedSubstring.charAt(0) == "-") {
-    return "down";
-  }
-  else {
-    api_sendPrivateMessageAlways({"message" : MISSING_DIRECTION_ERROR_MSG_START + searchTerm + MISSING_DIRECTION_ERROR_MSG_END, "toUserId" : USER_ID});
-    return "error";
-  }
-}
-
-function findPercent(trimmedSubstring) {
-  var length = trimmedSubstring.length;
-  var isPercent = false;
-  if ( trimmedSubstring.charAt(length - 1) == "%" ) {
-    isPercent = true;
-  }
-  return isPercent;
-}
-
-function apiFree_getAllAvailableContentObjects() {
-  const params = {
-    "method" : "get",
-    "muteHttpExceptions" : true,
-  }
-  
-  const url = "https://habitica.com/api/v3/content";
-  return UrlFetchApp.fetch(url, params);
-}
-
-function calcTotalIntelligence() {
-  const levelInt = Math.floor(user.stats.lvl / 2);
-  var totalEquipmentAndClassInt = 0;
-  const allocatedInt = user.stats.int;
-  const buffsInt = user.stats.buffs.int;
-  
-  // Get INT from equipped gear
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.weapon]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.shield]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.head]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.armor]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.headAccessory]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.eyewear]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.body]);
-  totalEquipmentAndClassInt += calcEquipmentAndClassInt(content.gear.flat[user.items.gear.equipped.back]);
-
-  return levelInt + totalEquipmentAndClassInt + allocatedInt + buffsInt;
-}
-
-function calcEquipmentAndClassInt(equipment) {
-  var equipmentAndClassInt = 0;
-
-  if (equipment != undefined) {  
-    equipmentAndClassInt += equipment.int;
-    if (equipment.klass == user.stats.class) {
-      equipmentAndClassInt += equipment.int / 2;
-    }
-  }
-  
-  return equipmentAndClassInt;
 }
 
 function api_updateUser(payload) { 
