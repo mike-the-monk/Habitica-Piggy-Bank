@@ -91,7 +91,7 @@ function doPost(e) {
     // All of the Piggy Bank buttons will have an alias that begins with "piggyBank" (which is saved as PIGGY_BANK_ALIAS_BASE)
     // Check if the alias of the button that was clicked includes PIGGY_BANK_ALIAS_BASE or not
     let aliasString = task.alias;
-    let includesBaseAlias = aliasStringincludes(PIGGY_BANK_ALIAS_BASE);
+    let includesBaseAlias = aliasString.includes(PIGGY_BANK_ALIAS_BASE);
     
     // Only run rest of script if true
     if (includesBaseAlias) {
