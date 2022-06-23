@@ -24,3 +24,60 @@ Once the user configures the script with the needed api information and weburl i
 6. Start over, by clicking the Piggy Bank Creation reward.
 
 Currently, this is a work in progress and does not yet work. It is not yet ready for testing.
+
+Coding outline:
+
+
+What I have
+
+*api information
+*acript author information
+*constants for "create" button
+*constants for "piggy bank" button
+*increment alias
+*error message constants
+
+*doOneTimeSetup function
+	*Create button
+	*Create webhook
+	*set script "cookie"
+*doPost function
+	*check button alias
+		*If button base is true (i.e. not a new button)
+	*find index locations of each search term (goal, saved, title, increment, should delete button)
+	*check formatting
+	*split into substrings 
+	*validate numbers are numbers
+	*create notes for button
+	*Build new button
+	*create button
+*When clicking an existing bank button
+	*get GP value of button
+	*check if button should be deleted
+		*if it should, delete and refund gold
+	*check string formatting
+	*find semicolons
+	*split into substrings
+	*check if they're numbers
+	*add gp value to amount saved
+	*check if new amount saved exceeds goal
+	*VICTORY DANCE (update button details)
+	*Create updated notes section for the button
+	*return htmlservice create html output
+*api_createNewTaskForUser function
+*apiMult_createNewWebHookNoDuplicates function
+*getWebHooks function
+*createNewWebHook function
+*initScriptProperties function (sets initial properties that will be used/saved later)
+*findIndex function
+*findIndexSemicolon function (for formatting an adding offset) (what is this??)
+*checkStringFormatting function (verify format and number of semicolons)
+*checkSearchTerms function (If the notes and title are all wrong, it throws an error)
+*checkSemicolons function (ensures the proper order of items)
+*checkOrder function (verifies order)
+*createSubstring function (gets rid of whitespace)
+*checkIfNumber function (verifies if substring is a number)
+*sendPrivateMessageAlways function (send notifications always)
+*getAuthenticatedUserProfile function (grabs user information like mana, xp, level, etc.)
+*getUserTasks function (grabs all the user's tasks)
+*updateUser function (updates the user's information?)
