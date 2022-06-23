@@ -7,6 +7,8 @@
 const USER_ID = "PasteYourUserIdHere";
 const API_TOKEN = "PasteYourApiTokenHere"; // Do not share this to anyone
 const WEB_APP_URL = "PasteGeneratedWebAppUrlHere";
+// This code is licensed under the same terms as Habitica:
+  // https://raw.githubusercontent.com/HabitRPG/habitrpg/develop/LICENSE
 
 /* ========================================== */
 /* [Users] Required customizations to fill in */
@@ -33,6 +35,7 @@ const NEW_NOTES_START = "Goal amount: ";
 const NEW_NOTES_MIDDLE = "; Amount saved towards goal: ";
 const NEW_NOTES_END = ";";
 
+const PIGGY_BANK_CREATE_TITLE = "Piggy Bank"
 const PIGGY_BANK_CREATE_TEXT = "Create a new Piggy Bank button with the parameters below";
 const PIGGY_BANK_CREATE_ALIAS = "piggyBankCreate";
 const PIGGY_BANK_CREATE_NOTES = "+ Piggy Bank Title: title ;\n+ Goal amount: 10000 ;\n+ Reward amount to purchase incrementally: 100;"; // doing it this way creates the three items as a bulleted list (that's what the plus sign is for) and line break is created by the character '\n'
@@ -58,6 +61,15 @@ const ERROR_MSG_FUNCTION_CHECK_ORDER = "Error with function `checkOrder`, please
 
 function doOneTimeSetup() { 
   // create button
+
+  // Build button
+const PIGGY_BANK_CREATE_BUTTON = {
+    "text": PIGGY_BANK_CREATE_TITLE,
+    "type": "reward",
+    "alias": PIGGY_BANK_CREATE_ALIAS,
+    "notes": PIGGY_BANK_CREATE_NOTES,
+    "value": PIGGY_BANK_CREATE_VALUE, // GP value for the reward will be whatever they set it, which is nice
+  }
   api_createNewTaskForUser([PIGGY_BANK_CREATE_BUTTON]);
   
   // create the webhook
@@ -91,7 +103,7 @@ function doPost(e) {
     // All of the Piggy Bank buttons will have an alias that begins with "piggyBank" (which is saved as PIGGY_BANK_ALIAS_BASE)
     // Check if the alias of the button that was clicked includes PIGGY_BANK_ALIAS_BASE or not
     let aliasString = task.alias;
-    let includesBaseAlias = aliasStringincludes(PIGGY_BANK_ALIAS_BASE);
+    let includesBaseAlias = aliasString.includes(PIGGY_BANK_ALIAS_BASE);
     
     // Only run rest of script if true
     if (includesBaseAlias) {
