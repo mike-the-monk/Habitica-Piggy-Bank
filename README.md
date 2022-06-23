@@ -25,10 +25,11 @@ Once the user configures the script with the needed api information and weburl i
 
 Currently, this is a work in progress and does not yet work. It is not yet ready for testing.
 
+
+```
 Coding outline:
 
 
-What I have
 
 *api information
 *acript author information
@@ -81,3 +82,4 @@ What I have
 *getAuthenticatedUserProfile function (grabs user information like mana, xp, level, etc.)
 *getUserTasks function (grabs all the user's tasks)
 *updateUser function (updates the user's information?)
+```
