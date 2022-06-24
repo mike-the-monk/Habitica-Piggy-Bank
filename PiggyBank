@@ -147,9 +147,9 @@ function doPiggyBankCreateButton(notes, indexGoal, indexAmountSaved, indexTitle,
     let indexIncrementSemicolon = findIndexSemicolon(notes, indexIncrement, 40);
 
     // Split into substrings
-    let title = createSubstring(notes, indexTitle, indexTitleSemicolon);
-    let goalTemp = createSubstring(notes, indexGoal, indexGoalSemicolonCreate);
-    let incrementTemp = createSubstring(notes, indexIncrement, indexIncrementSemicolon);
+    let title = createSubstring(notes, indexTitle + 17, indexTitleSemicolon);
+    let goalTemp = createSubstring(notes, indexGoal + 12, indexGoalSemicolonCreate);
+    let incrementTemp = createSubstring(notes, indexIncrement + 40, indexIncrementSemicolon);
 
     // Check if numeric ones are numbers
     let goalIsNumber = checkIfNumber(goalTemp);
