@@ -7,8 +7,6 @@
 const USER_ID = "PasteYourUserIdHere";
 const API_TOKEN = "PasteYourApiTokenHere"; // Do not share this to anyone
 const WEB_APP_URL = "PasteGeneratedWebAppUrlHere";
-// This code is licensed under the same terms as Habitica:
-  // https://raw.githubusercontent.com/HabitRPG/habitrpg/develop/LICENSE
 
 /* ========================================== */
 /* [Users] Required customizations to fill in */
@@ -87,8 +85,8 @@ const PIGGY_BANK_CREATE_BUTTON = {
   // set script properties so they carry over to next session
   initScriptProperties();
 }
-
-// do things when the webhook runs
+ 
+  // do things when the webhook runs
 function doPost(e) {
   const dataContents = JSON.parse(e.postData.contents);
   const type = dataContents.type;
@@ -96,147 +94,155 @@ function doPost(e) {
   
   if (type == "scored") {
     // Sanitize task alias
-    if ((task.alias == undefined) || (task.alias == null)) {
-      task.alias = "";
+    let aliasString = "";
+    if ((task.alias != undefined) || (task.alias != null)) {
+      aliasString = task.alias;
     }
-    
+
     // All of the Piggy Bank buttons will have an alias that begins with "piggyBank" (which is saved as PIGGY_BANK_ALIAS_BASE)
     // Check if the alias of the button that was clicked includes PIGGY_BANK_ALIAS_BASE or not
-    let aliasString = task.alias;
     let includesBaseAlias = aliasString.includes(PIGGY_BANK_ALIAS_BASE);
     
     // Only run rest of script if true
     if (includesBaseAlias) {
       let notes = "initial value";
       notes = task.notes;
-      
+
       // Find index locations for each search term
       let indexGoal = findIndex(SEARCH_TERM_GOAL, notes);
       let indexAmountSaved = findIndex(SEARCH_TERM_AMOUNT_SAVED, notes);
       let indexTitle = findIndex(SEARCH_TERM_TITLE, notes);
       let indexIncrement = findIndex(SEARCH_TERM_INCREMENT, notes);
-      let indexShouldDelete = findIndex(SEARCH_TERM_SHOULD_DELETE_BUTTON, notes);
-      
-      // Find semicolons after each search term
-      //findIndexSemicolon(stringToSearch, startingAt, offset)
-      
-      // If user clicked the Create button, take the relevant actions
-      if (task.alias == PIGGY_BANK_CREATE_ALIAS) {
-        // Check if string is formatted correctly, sends error messages if not.
-        let correctFormatCreate = checkStringFormtting(notes, "create", indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+      //let indexShouldDelete = findIndex(SEARCH_TERM_SHOULD_DELETE_BUTTON, notes);
+
+      // Switch-case is based on task alias
+      switch (aliasString) {
         
-        if (correctFormatCreate) {
-          // Find semicolons after each relevant search term
-          let indexTitleSemicolon = findIndexSemicolon(notes, indexTitle, 17);
-          let indexGoalSemicolonCreate = findIndexSemicolon(notes, indexGoal, 12);
-          let indexIncrementSemicolon = findIndexSemicolon(notes, indexIncrement, 40);
+        case PIGGY_BANK_CREATE_ALIAS: // If user clicked the Create button, take the relevant actions
+          doPiggyBankCreateButton(notes, indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+          break;
+        
+        default: // If user clicked one of their own Piggy Bank buttons, take the relevant actions
+          // Grab GP value of button
+          let gpValue = task.value;
           
-          // Split into substrings
-          let title = createSubstring(notes, indexTitle, indexTitleSemicolon);
-          let goalTemp = createSubstring(notes, indexGoal, indexGoalSemicolonCreate);
-          let incrementTemp = createSubstring(notes, indexIncrement, indexIncrementSemicolon);
-          
-          // Check if numeric ones are numbers
-          let goalIsNumber = checkIfNumber(goalTemp);
-          let incrementIsNumber = checkIfNumber(incrementTemp);
-          
-          if (goalIsNumber && incrementIsNumber) {
-            // Save numeric values as numbers
-            let goal = parseFloat(goalTemp);
-            let increment = parseFloat(incrementTemp);
-            
-            // Create notes section for button
-            let newNotes = NEW_NOTES_START + goal + NEW_NOTES_MIDDLE + "0" + NEW_NOTES_END;
-            
-            // Task alias needs an integer appended to it; Habitica doesn't allow two tasks with the same alias.
-            // Retrieve saved integer.
-            var integerCounterKey = INTEGER_COUNTER_KEY;
-            var integerCounterPrev = Number(scriptProperties.getProperty(integerCounterKey));
-            
-            // Increment by 1. Save new value.
-            var integerCounterNew = integerCounterPrev++;
-            scriptProperties.setProperty(integerCounterKey, integerCounterNew);
-            
-            // Convert new value to string
-            let integerCounterAsString = integerCounterNew.toString();
-            
-            // Append to end of base alias
-            let newAlias = PIGGY_BANK_ALIAS_BASE + integerCounterAsString;
-            
-            // Build button
-            const PIGGY_BANK_NEW_BUTTON = {
-              "text": title,
-              "type": "reward",
-              "alias": newAlias,
-              "notes": newNotes,
-              "value": increment, // GP value for the reward will be whatever they set it, which is nice
-            }
-            
-            // Create button
-            api_createNewTaskForUser([PIGGY_BANK_NEW_BUTTON]);
-          } else {
-            // ERROR MESSAGE, YOU DIDN'T ENTER A NUMBER
-          }
-        } 
+          doUpdatePiggyBankButon(gpValue, notes, indexGoal, indexAmountSaved, indexTitle, indexIncrement)
+          break;
       }
-      // If user clicked one of their own Piggy Bank buttons, take the relevant actions
-      else {
-        // Habitica has already checked if they have enough GP, so no need to do it here
-        
-        // Grab GP value of button
-        let gpValue = task.value;
-        
-        // Check if button should be deleted 
-        // NOTES OF BUTTON SHOULD SOMEHOW INDICATE THIS, THEN FLIP BOOLEAN
-        let shouldDeleteButton = false;
-        // if (conditions) { shouldDeleteButton = true; }
-        
-        if (shouldDeleteButton) {
-          // DELETE THE TASK AND REFUND THEIR GP
+    }
+  }
+  return HtmlService.createHtmlOutput();
+}
+
+function doPiggyBankCreateButton(notes, indexGoal, indexAmountSaved, indexTitle, indexIncrement){
+  // Check if string is formatted correctly, send error messages if not.
+  let correctFormatCreate = checkStringFormtting(notes, "create", indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+  
+  api_sendPrivateMessageAlways({"message" : "correctFormatCreate is " + correctFormatCreate, "toUserId" : USER_ID});
+
+  if (correctFormatCreate) {
+    // Find semicolons after each relevant search term
+    let indexTitleSemicolon = findIndexSemicolon(notes, indexTitle, 17);
+    let indexGoalSemicolonCreate = findIndexSemicolon(notes, indexGoal, 12);
+    let indexIncrementSemicolon = findIndexSemicolon(notes, indexIncrement, 40);
+
+    // Split into substrings
+    let title = createSubstring(notes, indexTitle, indexTitleSemicolon);
+    let goalTemp = createSubstring(notes, indexGoal, indexGoalSemicolonCreate);
+    let incrementTemp = createSubstring(notes, indexIncrement, indexIncrementSemicolon);
+
+    // Check if numeric ones are numbers
+    let goalIsNumber = checkIfNumber(goalTemp);
+    let incrementIsNumber = checkIfNumber(incrementTemp);
+    
+    if (goalIsNumber && incrementIsNumber) {
+      // Save numeric values as numbers
+      let goal = parseFloat(goalTemp);
+      let increment = parseFloat(incrementTemp);
+            
+      // Create notes section for button
+      let newNotes = NEW_NOTES_START + goal + NEW_NOTES_MIDDLE + "0" + NEW_NOTES_END;
+            
+      // Task alias needs an integer appended to it; Habitica doesn't allow two tasks with the same alias.
+      // Retrieve saved integer.
+      var integerCounterKey = INTEGER_COUNTER_KEY;
+      var integerCounterPrev = Number(scriptProperties.getProperty(integerCounterKey));
+
+      // Increment by 1. Save new value.
+      var integerCounterNew = integerCounterPrev++;
+      scriptProperties.setProperty(integerCounterKey, integerCounterNew);
+            
+      // Convert new value to string
+      let integerCounterAsString = integerCounterNew.toString();
+            
+      // Append to end of base alias
+      let newAlias = PIGGY_BANK_ALIAS_BASE + integerCounterAsString;
+
+      // Build button
+      const PIGGY_BANK_NEW_BUTTON = {
+        "text": title,
+        "type": "reward",
+        "alias": newAlias,
+        "notes": newNotes,
+        "value": increment, // GP value for the reward will be whatever they set it, which is nice
+      }
+
+      // Create button
+      api_createNewTaskForUser([PIGGY_BANK_NEW_BUTTON]);
+    } else {
+      // ERROR MESSAGE, YOU DIDN'T ENTER A NUMBER
+    }
+  }
+}
+
+function doUpdatePiggyBankButon(gpValue, notes, indexGoal, indexAmountSaved, indexTitle, indexIncrement){
+  // Habitica has already checked if they have enough GP, so no need to do it here
+
+  // Check if button should be deleted 
+  // NOTES OF BUTTON SHOULD SOMEHOW INDICATE THIS, THEN FLIP BOOLEAN
+  let shouldDeleteButton = false;
+  // if (conditions) { shouldDeleteButton = true; }
+
+  if (shouldDeleteButton) {
+    // DELETE THE TASK AND REFUND THEIR GP
+  } else {
+    // Check if string is formatted correctly, sends error messages if not.
+    let correctFormatDeposit = checkStringFormtting(notes, "deposit", indexGoal, indexAmountSaved, indexTitle, indexIncrement);
+
+    if (correctFormatDeposit) {
+      // Find semicolons after each relevant search term
+      let indexGoalSemicolonDeposit = findIndexSemicolon(string, indexGoal, 12);
+      let indexAmountSavedSemicolon = findIndexSemicolon(string, indexAmountSaved, 26);
+            
+      // Split into substrings
+      let goalDepositTemp = createSubstring(notes, indexGoal, indexGoalSemicolonDeposit);
+      let amountSavedTemp = createSubstring(notes, indexAmountSaved, indexAmountSavedSemicolon);
+            
+      // Check if they are numbers
+      let goalDepositIsNumber = checkIfNumber(goalDepositTemp);
+      let amountSavedIsNumber = checkIfNumber(amountSavedTemp);
+
+      if (goalDepositIsNumber && amountSavedIsNumber) {
+        // Save as numbers
+        let goalDeposit = parseFloat(goalDepositTemp);
+        let amountSaved = parseFloat(amountSavedTemp);
+
+        // Add GP value to amount saved
+        let newAmountSaved = amountSaved + gpValue;
+              
+        // Check if new amount saved exceeds goal
+        if (newAmountSaved >= goalAmount) {
+          // DO VICTORY THINGS
+          // UPDATE BUTTON, INCLUDING A WAY TO CHECK IF BUTTON SHOULD BE DELETED
         } else {
-          // Check if string is formatted correctly, sends error messages if not.
-          let correctFormatDeposit = checkStringFormtting(notes, "deposit", indexGoal, indexAmountSaved, indexTitle, indexIncrement);
-        
-          if (correctFormatDeposit) {
-            // Find semicolons after each relevant search term
-            let indexGoalSemicolonDeposit = findIndexSemicolon(string, indexGoal, 12);
-            let indexAmountSavedSemicolon = findIndexSemicolon(string, indexAmountSaved, 26);
-            
-            // Split into substrings
-            let goalDepositTemp = createSubstring(notes, indexGoal, indexGoalSemicolonDeposit);
-            let amountSavedTemp = createSubstring(notes, indexAmountSaved, indexAmountSavedSemicolon);
-            
-            // Check if they are numbers
-            let goalDepositIsNumber = checkIfNumber(goalDepositTemp);
-            let amountSavedIsNumber = checkIfNumber(amountSavedTemp);
-          
-            if (goalDepositIsNumber && amountSavedIsNumber) {
-              // Save as numbers
-              let goalDeposit = parseFloat(goalDepositTemp);
-              let amountSaved = parseFloat(amountSavedTemp);
-              
-              // Add GP value to amount saved
-              let newAmountSaved = amountSaved + gpValue;
-              
-              // Check if new amount saved exceeds goal
-              if (newAmountSaved >= goalAmount) {
-                // DO VICTORY THINGS
-                // UPDATE BUTTON, INCLUDING A WAY TO CHECK IF BUTTON SHOULD BE DELETED
-              } else {
-                // Create updated notes section for button
-                let updatedNotes = NEW_NOTES_START + goalDeposit + NEW_NOTES_MIDDLE + newAmountSaved + NEW_NOTES_END;
+          // Create updated notes section for button
+          // let updatedNotes = NEW_NOTES_START + goalDeposit + NEW_NOTES_MIDDLE + newAmountSaved + NEW_NOTES_END;
                 
-                // UPDATE BUTTON
-              }
-              
-            } else {
-              // ERROR MESSAGE - YOU DIDN'T ENTER A NUMBER
-            }
-            
-          }
-        } 
+          // UPDATE BUTTON
+        }
+      } else {
+        // ERROR MESSAGE - YOU DIDN'T ENTER A NUMBER
       }
-      return HtmlService.createHtmlOutput();
     }
   }
 }
